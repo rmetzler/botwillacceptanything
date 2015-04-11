@@ -1,6 +1,7 @@
 
 var EventEmitter = require('events').EventEmitter;
 var request = require('request');
+var _ = require('lodash');
 
 // voting settings
 var PERIOD = 30; // time for the vote to be open, in minutes
@@ -239,7 +240,7 @@ module.exports = function(config, gh, Twitter) {
           user: config.user,
           repo: config.repo,
           number: pr.number,
-          body: voteEndComment(passes, yeas, nays, nonStarGazers)
+          body: voteEndComment(passes, yeas, nays, _.uniq(nonStarGazers))
         }, noop);
 
         if(passes) {
@@ -355,9 +356,9 @@ module.exports = function(config, gh, Twitter) {
         repo: config.repo,
         number: pr.number
       }, function(err, res) {
-        if(!err){ 
+        if(!err){
           voting.emit('merge', pr);
-          
+
           // Tweet PR merged
           Twitter.postTweet('PR #' + pr.number + ' has been merged: https://github.com/botwillacceptanything/botwillacceptanything/pull/' + pr.number);
         }
